@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "INSERT INTO authors (name) VALUES (?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "089f342678c7cd30d858fa0544dc256e3c3ef5b0b1ff7881c917fd1fdb0ea986"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "\n        INSERT INTO books (title, price, stock, author_id)\n        VALUES (?, ?, ?, ?)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "5ad1b106c83b6417c2be2135b76abe59c6f6e7f795dfd4133ba58cdc55898ebe"
+}
