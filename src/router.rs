@@ -27,6 +27,6 @@ impl RouteHandler {
     fn author_routes(&self) -> Router<AppState> {
         Router::new()
            .route("/authors", get(author_controller::list).post(author_controller::save))
-           .route("/authors/:id", get(author_controller::get))
+           .route("/authors/:id", get(author_controller::get).delete(author_controller::delete))
     }
 }

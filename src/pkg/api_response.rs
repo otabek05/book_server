@@ -29,6 +29,7 @@ impl<T> ApiResponse<T> {
 
 
     pub fn generic_error(status: StatusCode, message:String) -> Self {
+        eprintln!("generic error: {}", message);
         ApiResponse {
             status: status.as_u16(),
             message: message,

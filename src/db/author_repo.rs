@@ -55,7 +55,6 @@ impl AuthorRepo {
         }).collect())
     }
 
-    // Optional: delete author by id
     pub async fn delete(&self, id: i64) -> Result<u64, sqlx::Error> {
         let rec = sqlx::query!(
             "DELETE FROM authors WHERE id = ?",

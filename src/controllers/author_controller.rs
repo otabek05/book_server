@@ -5,7 +5,7 @@ use crate::{
 };
 
 
- pub async fn save(State(state): State<AppState>,  Json(dto): Json<AuthorPayload>  ) -> Json<ApiResponse<Author>> {
+pub async fn save(State(state): State<AppState>,  Json(dto): Json<AuthorPayload>  ) -> Json<ApiResponse<Author>> {
         match state.author_repo.save(&dto).await {
             Ok(author) => Json(ApiResponse::success(author, "author created successfully")),
             Err(err) =>  Json(ApiResponse::error(StatusCode::INTERNAL_SERVER_ERROR, err))
@@ -15,19 +15,16 @@ use crate::{
 
 pub async fn get(State(state): State<AppState>, Path(id): Path<i64>) -> Json<ApiResponse<Author>> {
     match  state.author_repo.get(id).await {
-        Ok(Some(author)) => {
-            Json(ApiResponse::success(author, "successfully fetched"))
-        }
-
-        Ok(None) => {
-            Json(ApiResponse::generic_error(
-                StatusCode::NOT_FOUND,
-                format!("author with id {} not found", id),
-            ))
-        }
-
+        Ok(Some(author)) => Json(ApiResponse::success(author, "successfully fetched")),
+        Ok(None) =>  Json(ApiResponse::generic_error(StatusCode::NOT_FOUND, format!("author with id {} not found", id),)),
         Err(err) =>  Json(ApiResponse::error(StatusCode::INTERNAL_SERVER_ERROR, err)),
+    }
+}
 
+pub async fn delete(State(state): State<AppState>, Path(id): Path<i64>) -> Json<ApiResponse<String>> {
+    match state.author_repo.delete(id).await {
+        Ok(_)=> Json(ApiResponse::success("succuessfully deleted".to_string(), "success")),
+        Err(err) =>  Json(ApiResponse::error(StatusCode::INTERNAL_SERVER_ERROR, err))
     }
 }
 
