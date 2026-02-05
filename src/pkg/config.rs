@@ -6,6 +6,7 @@ use std::{env, fs};
 pub struct Config {
     pub server:ServerConfig,
     pub db:DBConfig,
+    pub jwt:JwtConfig,
 }
 
 
@@ -24,6 +25,13 @@ pub struct DBConfig {
     pub host:String,
     pub port: u16,
     pub name:String,
+}
+
+
+
+#[derive(Debug,Deserialize)]
+pub struct JwtConfig {
+   pub secret: String
 }
 
 

@@ -1,2 +1,2 @@
-pub mod book_repo;
-pub mod author_repo;
+pub mod book;
+pub mod author;

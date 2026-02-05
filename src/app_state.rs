@@ -1,6 +1,6 @@
 use std::{ sync::Arc};
 
-use crate::repo::{author_repo::*, book_repo::*};
+use crate::repo::{author::*, book::*};
 use sqlx::MySqlPool;
 #[derive(Clone)]
 pub struct AppState {

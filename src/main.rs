@@ -4,6 +4,7 @@ mod models;
 mod controllers;
 mod pkg;
 mod router;
+mod services;
 
 use axum::{Router};
 use app_state::AppState;
@@ -15,7 +16,7 @@ use tower_http::cors::{Any, CorsLayer};
 async  fn  main() {
     dotenvy::dotenv().ok();
     let config = pkg::config::from_file();
-    
+
     let db = match pkg::mariadb::connect(&config).await {
         Ok(db)  => db,
         Err(err) => panic!("Error connecting to db: {}", err)

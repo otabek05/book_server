@@ -1,0 +1,91 @@
+
+use chrono::{Duration, Utc};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode, errors::Error};
+use serde::{Serialize, Deserialize};
+
+use crate::{models::Token, pkg::config};
+
+pub enum  JwtType {
+    AccessToken,
+    RefreshToken
+}
+
+impl  JwtType {
+    pub fn as_str(&self) -> &'static str {
+        match  self {
+            JwtType::AccessToken => "access_token",
+            JwtType::RefreshToken => "refresh_token"
+        }
+    }
+
+
+    pub fn to_string(&self) -> String {
+        self.as_str().to_owned()
+    }
+}
+
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub sub: String,
+    pub token_type: String,
+    pub exp: usize,   
+    pub iat: usize,   
+}
+
+
+pub struct JwtService {
+    encoding: EncodingKey,
+    decoding: DecodingKey,
+    validation: Validation,
+}
+
+
+
+
+
+impl JwtService {
+
+    pub fn new(config: config::JwtConfig) -> Self {
+        let mut validation = Validation::new(Algorithm::HS256);
+        validation.validate_exp = true;
+
+        Self { 
+            encoding:EncodingKey::from_secret(config.secret.as_bytes()) , 
+            decoding: DecodingKey::from_secret(config.secret.as_bytes()), 
+            validation }
+    }
+
+
+    pub fn generate(&self, user_id: u64 ) -> Result<Token, Error> {
+        let access_token = self.generate_token(user_id, JwtType::AccessToken, 3600)?;
+        let refresh_token = self.generate_token(user_id, JwtType::RefreshToken, 6200)?;
+        Ok(Token{access_token,refresh_token})
+
+    }
+
+    pub fn parse(&self, token:&str) -> Result<Claims, Error> {
+        let data = decode::<Claims>(
+            token,
+            &self.decoding,
+            &self.validation
+        )?;
+
+        Ok(data.claims)
+    }
+
+    fn generate_token(&self, user_id: u64, token_type: JwtType, ttl: i64 ) -> Result<String, Error> {
+        let now = Utc::now();
+        let claims = Claims {
+            sub: user_id.to_string(),
+            iat: now.timestamp() as usize,
+            exp: (now + Duration::seconds(ttl)).timestamp() as usize,
+            token_type:token_type.to_string(),
+        };
+
+        encode(&Header::default(), &claims, &self.encoding)
+    }
+}
+
+
