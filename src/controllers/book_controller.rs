@@ -1,23 +1,23 @@
 
-use axum::{Json, extract::State};
+use axum::{Json, extract::State, http::StatusCode};
 use crate::{
-    app_state::AppState, 
-    models::book::{Book, CreateBook}, 
-    pkg::api_response::ApiResponse, 
-    services::book_service,
+    app_state::AppState,  models::book::{Book, CreateBook}, pkg::api_response::ApiResponse
 };
 
 
-pub async fn list_books(
+pub async fn list(
     State(state): State<AppState>,
 ) -> Json<ApiResponse<Vec<Book>>> {
-    Json(book_service::list_books(&state.db).await)
+    let books = state.book_repo.find_all().await;
+    Json(ApiResponse::success(books, "books receivied successfully"))
 }
 
-pub async fn create_book(
+pub async fn save(
     State(state): State<AppState>,
     Json(dto): Json<CreateBook>,
 ) -> Json<ApiResponse<Book>>{
-    let book = book_service::create(&state.db, dto).await;
-    Json(book)
+    match state.book_repo.save(&dto).await {
+        Ok(book) => Json(ApiResponse::success(book, "successfully created")),
+        Err(err) => Json(ApiResponse::error(StatusCode::INTERNAL_SERVER_ERROR, err))
+    }
 }

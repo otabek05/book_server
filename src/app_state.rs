@@ -1,11 +1,18 @@
+use std::{ sync::Arc};
 
-use std::sync::Arc;
-
+use crate::db::{author_repo::*, book_repo::*};
 use sqlx::MySqlPool;
-
 #[derive(Clone)]
 pub struct AppState {
-    pub db: Arc< MySqlPool>,
+    pub book_repo: Arc< BookRepo>,
+    pub author_repo: Arc<AuthorRepo>,
 }
 
-
+impl AppState {
+    pub fn new(db: MySqlPool) -> Self {
+        AppState { 
+            book_repo: Arc::new( BookRepo::new(db.clone())), 
+            author_repo:Arc::new(AuthorRepo::new(db.clone())) 
+        }
+    }
+}

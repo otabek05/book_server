@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "\n        SELECT id, title, price, stock, author_id\n        FROM books WHERE id = ?\n        ",
+  "query": "\n        SELECT id, title, price, stock, author_id\n        FROM books\n        WHERE id = ?\n        ",
   "describe": {
     "columns": [
       {
@@ -65,5 +65,5 @@
       false
     ]
   },
-  "hash": "998f2be39aa3e2db0384d5880dd5bd4a4211c9e0eddf3e146d184ed4a09cbd55"
+  "hash": "b00e92ac663d4095608fc04a2c6756a76cb979c5e2919e2ee9b26b91de3da661"
 }

@@ -17,7 +17,18 @@ impl<T> ApiResponse<T> {
         }
     }
 
-    pub fn error(status: StatusCode, message: String) -> Self {
+    pub fn error(status: StatusCode, err: sqlx::Error) -> Self {
+        let err_msg = err.to_string();
+        eprintln!("db error: {}", err_msg);
+        ApiResponse {
+            status: status.as_u16(),
+            message: err_msg,
+            data: None,
+        }
+    }
+
+
+    pub fn generic_error(status: StatusCode, message:String) -> Self {
         ApiResponse {
             status: status.as_u16(),
             message: message,

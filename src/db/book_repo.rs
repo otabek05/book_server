@@ -1,14 +1,18 @@
 use crate::models::{Book, CreateBook};
 use sqlx::MySqlPool;
 
-pub async fn find_all(db: &MySqlPool) -> Vec<Book> {
-    sqlx::query_as!(Book, "SELECT id, title, price, stock, author_id FROM books")
-        .fetch_all(db)
-        .await
-        .unwrap()
+
+pub struct BookRepo {
+    db:MySqlPool
 }
 
-pub async fn insert(db: &MySqlPool, dto: CreateBook) -> Result<Book, sqlx::Error> {
+impl BookRepo {
+
+    pub fn new(db:MySqlPool) -> BookRepo {
+        BookRepo { db }
+    }    
+
+     pub async fn save(&self, dto: &CreateBook) -> Result<Book, sqlx::Error> {
     let result = sqlx::query!(
         r#"
         INSERT INTO books (title, price, stock, author_id)
@@ -19,7 +23,7 @@ pub async fn insert(db: &MySqlPool, dto: CreateBook) -> Result<Book, sqlx::Error
         dto.stock,
         dto.author_id
     )
-    .execute(db)
+    .execute(&self.db)
     .await?;
 
     let id = result.last_insert_id() as i64;
@@ -28,10 +32,25 @@ pub async fn insert(db: &MySqlPool, dto: CreateBook) -> Result<Book, sqlx::Error
         Book,
         r#"
         SELECT id, title, price, stock, author_id
-        FROM books WHERE id = ?
+        FROM books
+        WHERE id = ?
         "#,
         id
     )
-    .fetch_one(db)
+    .fetch_one(&self.db)
     .await
+}
+
+
+    pub async fn find_all(&self) -> Vec<Book> {
+       sqlx::query_as!(
+        Book,
+        "SELECT id, title, price, stock, author_id FROM books"
+    )
+    .fetch_all(&self.db)
+    .await
+    .unwrap()
+    }
+
+
 }

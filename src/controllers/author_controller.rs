@@ -1,39 +1,39 @@
 
-use std::sync::Arc;
-
-use axum::{Json, extract::State, http::StatusCode};
-use sqlx::MySqlPool;
+use axum::{Json, extract::{Path, State}, http::StatusCode};
 use crate::{
-    app_state::AppState, 
-    models::author::{Author, AuthorPayload}, 
-    pkg::api_response::ApiResponse, 
-    db::author_repo::AuthorRepo,
+    app_state::AppState, models::author::{ Author, AuthorPayload}, pkg::api_response::ApiResponse
 };
 
-pub struct AuthorController {
-    db: MySqlPool,
-    author_repo: AuthorRepo
+
+ pub async fn save(State(state): State<AppState>,  Json(dto): Json<AuthorPayload>  ) -> Json<ApiResponse<Author>> {
+        match state.author_repo.save(&dto).await {
+            Ok(author) => Json(ApiResponse::success(author, "author created successfully")),
+            Err(err) =>  Json(ApiResponse::error(StatusCode::INTERNAL_SERVER_ERROR, err))
+        }
 }
 
 
-impl AuthorController {
-    pub fn new(db: MySqlPool) -> Self {
-        let author_repo = AuthorRepo::new(db.clone()); 
-        AuthorController { author_repo: author_repo, db: db }
-    }
-
-    pub async fn save(&self, Json(dto): Json<AuthorPayload>  ) -> Json<ApiResponse<Author>> {
-        match self.author_repo.save(&dto).await {
-            Ok(author) => Json(ApiResponse::success(author, "author created successfully")),
-            Err(err) =>{
-                let err_msg = err.to_string();
-                eprintln!("db error : {}", err_msg);
-                Json(ApiResponse::error(StatusCode::INTERNAL_SERVER_ERROR, err_msg))
-            }
+pub async fn get(State(state): State<AppState>, Path(id): Path<i64>) -> Json<ApiResponse<Author>> {
+    match  state.author_repo.get(id).await {
+        Ok(Some(author)) => {
+            Json(ApiResponse::success(author, "successfully fetched"))
         }
+
+        Ok(None) => {
+            Json(ApiResponse::generic_error(
+                StatusCode::NOT_FOUND,
+                format!("author with id {} not found", id),
+            ))
+        }
+
+        Err(err) =>  Json(ApiResponse::error(StatusCode::INTERNAL_SERVER_ERROR, err)),
+
     }
+}
 
-
-    
-
+pub async  fn list(State(state): State<AppState>) -> Json<ApiResponse<Vec<Author>>> {
+     match state.author_repo.find_all().await {
+        Ok(data) =>  Json(ApiResponse::success(data, "success")),
+        Err(err) => Json(ApiResponse::error(StatusCode::INTERNAL_SERVER_ERROR, err))
+     }
 }
