@@ -1,6 +1,5 @@
 mod app_state;
-mod config;
-mod db;
+mod repo;
 mod models;
 mod controllers;
 mod pkg;
@@ -8,7 +7,6 @@ mod router;
 
 use axum::{Router};
 use app_state::AppState;
-use db::create_pool;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -16,9 +14,14 @@ use tower_http::cors::{Any, CorsLayer};
 
 async  fn  main() {
     dotenvy::dotenv().ok();
-    let config = config::from_file();
-    let pool = create_pool(&config).await;
-    let state = AppState::new(pool);
+    let config = pkg::config::from_file();
+    
+    let db = match pkg::mariadb::connect(&config).await {
+        Ok(db)  => db,
+        Err(err) => panic!("Error connecting to db: {}", err)
+    };
+
+    let state = AppState::new(db);
     let router = router::RouteHandler::new();
 
     let app = Router::new()

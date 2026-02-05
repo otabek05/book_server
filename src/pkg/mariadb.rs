@@ -1,7 +1,8 @@
 use sqlx::MySqlPool;
-use crate::config::Config;
+use crate::pkg::config::Config;
 
-pub async fn create_pool(cfg: &Config) -> MySqlPool {
+
+pub async fn connect(cfg: &Config) -> Result< MySqlPool, sqlx::Error> {
     let url = format!(
         "mysql://{}:{}@{}:{}/{}",
         cfg.db.user,
@@ -11,8 +12,5 @@ pub async fn create_pool(cfg: &Config) -> MySqlPool {
         cfg.db.name,
     );
 
-    MySqlPool::connect(&url).await.expect("DB connect failed")
+    MySqlPool::connect(&url).await
 }
-
-
-
