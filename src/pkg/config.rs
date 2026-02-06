@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::{env, fs};
 
 
@@ -7,6 +7,7 @@ pub struct Config {
     pub server:ServerConfig,
     pub db:DBConfig,
     pub jwt:JwtConfig,
+    pub middleware: Middleware,
 }
 
 
@@ -34,6 +35,12 @@ pub struct JwtConfig {
    pub secret: String
 }
 
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Middleware {
+    pub model_path: String, 
+    pub policy_path: String
+}
 
 
 pub fn from_file() -> Config{

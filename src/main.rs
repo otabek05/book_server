@@ -2,14 +2,16 @@ mod app_state;
 mod repo;
 mod models;
 mod controllers;
+mod middleware;
 mod pkg;
 mod router;
 mod services;
+mod enums;
 
-use axum::{Router};
 use app_state::AppState;
 use tokio::net::TcpListener;
-use tower_http::cors::{Any, CorsLayer};
+
+
 
 #[tokio::main]
 
@@ -22,24 +24,16 @@ async  fn  main() {
         Err(err) => panic!("Error connecting to db: {}", err)
     };
 
-    let state = AppState::new(db, &config);
+    let enforcer = match pkg::enforcer::new(config.middleware.clone()).await {
+        Ok(enf) => enf,
+        Err(err) => panic!("Error configuring casbin enforcer: {}", err)
+    };
+
+    let state = AppState::new(db, &config, enforcer);
     let router = router::RouteHandler::new();
-
-    let app = Router::new()
-        .merge(router.routes())
-        .layer(cors())
-        .with_state(state.clone());
-
     let addr = format!("{}:{}", config.server.host, config.server.port);
     let listener = TcpListener::bind(&addr).await.expect("Failed to bind address");
 
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, router.router_handler(state)).await.unwrap();
 }
 
-
-fn cors() -> CorsLayer {
-    CorsLayer::new()
-    .allow_origin(Any)
-    .allow_methods(Any)
-    .allow_headers(Any)
-}

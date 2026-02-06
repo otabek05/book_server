@@ -3,7 +3,7 @@ use chrono::{Duration, Utc};
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode, errors::Error};
 use serde::{Serialize, Deserialize};
 
-use crate::{models::Token, pkg::config};
+use crate::{enums::role::Role, models::Token, pkg::config};
 
 pub enum  JwtType {
     AccessToken,
@@ -26,9 +26,10 @@ impl  JwtType {
 
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     pub sub: String,
+    pub role: String,
     pub token_type: String,
     pub exp: usize,   
     pub iat: usize,   
@@ -49,11 +50,6 @@ impl JwtService {
     pub fn new(config: &config::JwtConfig) -> Self {
         let mut validation = Validation::new(Algorithm::HS256);
         validation.validate_exp = true;
-
-
-        println!("JWT_SECRET length: {}", config.secret.len());
-
-
         Self { 
             encoding:EncodingKey::from_secret(config.secret.as_bytes()) , 
             decoding: DecodingKey::from_secret(config.secret.as_bytes()), 
@@ -61,9 +57,9 @@ impl JwtService {
     }
 
 
-    pub fn generate(&self, user_id: u64 ) -> Result<Token, Error> {
-        let access_token = self.generate_token(user_id, JwtType::AccessToken, 3600)?;
-        let refresh_token = self.generate_token(user_id, JwtType::RefreshToken, 6200)?;
+    pub fn generate(&self, user_id: u64, role: &Role ) -> Result<Token, Error> {
+        let access_token = self.generate_token(user_id, JwtType::AccessToken, 3600, role)?;
+        let refresh_token = self.generate_token(user_id, JwtType::RefreshToken, 6200,role)?;
         Ok(Token{access_token,refresh_token})
 
     }
@@ -78,11 +74,12 @@ impl JwtService {
         Ok(data.claims)
     }
 
-    fn generate_token(&self, user_id: u64, token_type: JwtType, ttl: i64 ) -> Result<String, Error> {
+    fn generate_token(&self, user_id: u64, token_type: JwtType, ttl: i64, role: &Role ) -> Result<String, Error> {
         let now = Utc::now();
         let claims = Claims {
             sub: user_id.to_string(),
             iat: now.timestamp() as usize,
+            role: role.to_string(),
             exp: (now + Duration::seconds(ttl)).timestamp() as usize,
             token_type:token_type.to_string(),
         };

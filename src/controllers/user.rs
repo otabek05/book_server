@@ -5,9 +5,7 @@ use axum::{
 };
 
 use crate::{
-    app_state::AppState,
-    models::{CreateUser, Login, Token, User},
-    pkg::api_response::ApiResponse,
+    app_state::AppState, enums::role::Role, models::{CreateUser, Login, User}, pkg::api_response::ApiResponse
 };
 
 pub async fn save(
@@ -90,7 +88,9 @@ pub async fn login(
         ));
     };
 
-    let token = match  state.service.jwt.generate(user.id) {
+    let role = Role::User;
+
+    let token = match  state.service.jwt.generate(user.id, &role) {
         Ok(token) => token,
         Err(err) => return Json(ApiResponse::generic_error(StatusCode::BAD_REQUEST, err.to_string())),
     };

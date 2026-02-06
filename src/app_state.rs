@@ -1,6 +1,7 @@
 use std::{ sync::Arc};
 
-use crate::{pkg::config::Config, repo::{author::*, book::*, user::UserRepo}, services::jwt_service::JwtService};
+use crate::{pkg::{ config::Config}, repo::{author::*, book::*, user::UserRepo}, services::jwt_service::JwtService};
+use casbin::Enforcer;
 use sqlx::MySqlPool;
 #[derive(Clone)]
 pub struct AppState {
@@ -17,11 +18,12 @@ pub struct Repo {
 
 
 pub struct Service {
-    pub jwt: JwtService
+    pub jwt: JwtService,
+    pub enforcer: Enforcer,
 }
 
 impl AppState {
-    pub fn new(db: MySqlPool, config: &Config) -> Self {
+    pub fn new(db: MySqlPool, config: &Config, enforcer: Enforcer) -> Self {
 
         let repo = Arc::new(
             Repo{
@@ -31,10 +33,10 @@ impl AppState {
         
             }
         );
-
         let service = Arc::new(
             Service{
-                jwt: JwtService::new(&config.jwt)
+                jwt: JwtService::new(&config.jwt),
+                enforcer: enforcer
             }
         );
 
