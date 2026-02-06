@@ -46,7 +46,6 @@ pub struct JwtService {
 
 
 impl JwtService {
-
     pub fn new(config: config::JwtConfig) -> Self {
         let mut validation = Validation::new(Algorithm::HS256);
         validation.validate_exp = true;

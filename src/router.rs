@@ -1,7 +1,7 @@
 
 use axum::{Router, routing::{get}};
-use crate::controllers::book_controller::{self};
-use crate::controllers::author_controller::{self};
+use crate::controllers::book::{self};
+use crate::controllers::author::{self};
 use crate::app_state::AppState;
 
 
@@ -21,12 +21,12 @@ impl RouteHandler {
 
     fn book_routes(&self) -> Router<AppState> {
         Router::new()
-            .route("/books", get(book_controller::list).post(book_controller::save))
+            .route("/books", get(book::list).post(book::save))
     }
 
     fn author_routes(&self) -> Router<AppState> {
         Router::new()
-           .route("/authors", get(author_controller::list).post(author_controller::save))
-           .route("/authors/:id", get(author_controller::get).delete(author_controller::delete))
+           .route("/authors", get(author::list).post(author::save))
+           .route("/authors/:id", get(author::get).delete(author::delete))
     }
 }

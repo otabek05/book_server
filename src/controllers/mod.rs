@@ -1,2 +1,3 @@
-pub mod book_controller;
-pub mod author_controller;
+pub mod book;
+pub mod author;
+pub mod user;
