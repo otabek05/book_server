@@ -92,4 +92,30 @@ impl UserRepo  {
 
 
 
+       pub async fn get_by_email(
+        &self,
+        email: &str,
+    ) -> Result<Option<User>, sqlx::Error> {
+        let user = sqlx::query_as!(
+            User,
+            r#"
+            SELECT
+                id,
+                name,
+                email,
+                address,
+                created_at
+            FROM users
+            WHERE email = ?
+            "#,
+            email
+        )
+        .fetch_optional(&self.db)
+        .await?;
+
+        Ok(user)
+    }
+
+
+
 }

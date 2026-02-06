@@ -46,9 +46,13 @@ pub struct JwtService {
 
 
 impl JwtService {
-    pub fn new(config: config::JwtConfig) -> Self {
+    pub fn new(config: &config::JwtConfig) -> Self {
         let mut validation = Validation::new(Algorithm::HS256);
         validation.validate_exp = true;
+
+
+        println!("JWT_SECRET length: {}", config.secret.len());
+
 
         Self { 
             encoding:EncodingKey::from_secret(config.secret.as_bytes()) , 

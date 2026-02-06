@@ -22,7 +22,7 @@ async  fn  main() {
         Err(err) => panic!("Error connecting to db: {}", err)
     };
 
-    let state = AppState::new(db);
+    let state = AppState::new(db, &config);
     let router = router::RouteHandler::new();
 
     let app = Router::new()

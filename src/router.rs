@@ -37,5 +37,6 @@ impl RouteHandler {
         Router::new()
         .route("/users",post(user::save).get(user::list))
         .route("/users/:id", get(user::get_by_id).delete(user::delete))
+        .route("/login", post(user::login))
     }
 }
