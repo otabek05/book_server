@@ -1,7 +1,7 @@
 use axum::{body::Body, extract::{Request, State}, http::StatusCode, middleware::Next, response::Response};
 use casbin::CoreApi;
 
-use crate::{app_state::AppState, services::jwt_service::Claims};
+use crate::{app_state::AppState};
 
 
 pub async fn auth_middleware(

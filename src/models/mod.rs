@@ -1,9 +1,11 @@
-pub mod book;
 pub mod author;
-pub mod user;
+pub mod book;
+pub mod claims;
 pub mod login;
+pub mod user;
 
-pub use book::*;
 pub use author::*;
-pub use user::*;
+pub use book::*;
+pub use claims::*;
 pub use login::*;
+pub use user::*;

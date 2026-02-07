@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use std::{env, fs};
+use std::fs;
 
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -43,9 +43,18 @@ pub struct Middleware {
 }
 
 
-pub fn from_file() -> Config{
-      let cwd = env::current_dir().unwrap();
-    println!("Current working directory: {}", cwd.display());
-    let content = fs::read_to_string("config/config.yaml").expect("config yaml not found");
-    serde_yaml::from_str(&content).expect("invalid config.yaml")
+
+
+pub fn from_file() -> Config {
+    let content = fs::read_to_string("config/config.yaml")
+        .unwrap_or_else(|e| {
+            eprintln!("Failed to read config file: {}", e);
+            panic!();
+        });
+
+    serde_yaml::from_str(&content)
+        .unwrap_or_else(|e| {
+            eprintln!("Failed to parse config yaml: {}", e);
+            panic!();
+        })
 }

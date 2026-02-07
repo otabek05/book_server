@@ -1,49 +1,13 @@
-
 use chrono::{Duration, Utc};
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode, errors::Error};
-use serde::{Serialize, Deserialize};
 
-use crate::{enums::role::Role, models::Token, pkg::config};
-
-pub enum  JwtType {
-    AccessToken,
-    RefreshToken
-}
-
-impl  JwtType {
-    pub fn as_str(&self) -> &'static str {
-        match  self {
-            JwtType::AccessToken => "access_token",
-            JwtType::RefreshToken => "refresh_token"
-        }
-    }
-
-
-    pub fn to_string(&self) -> String {
-        self.as_str().to_owned()
-    }
-}
-
-
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Claims {
-    pub sub: String,
-    pub role: String,
-    pub token_type: String,
-    pub exp: usize,   
-    pub iat: usize,   
-}
-
+use crate::{enums::{jwt::JwtType, role::Role}, models::{Claims, Token}, pkg::config};
 
 pub struct JwtService {
     encoding: EncodingKey,
     decoding: DecodingKey,
     validation: Validation,
 }
-
-
-
 
 
 impl JwtService {
